@@ -1,0 +1,25 @@
+h1 #{title}
+
+h3 Länk: 
+a href="#{link_for_beatmap}" 
+ p #{link_for_beatmap}
+h3 Genre:
+p Denna låtens genre är #{genre}
+h3 Mapper:
+p Denna låtens mapper är #{mapper} 
+h3 Description:
+p #{description}
+
+h3 Skriv en kommentar (Måste vara inloggad)
+- if session[:id] != nil
+    form action="/beatmaps/#{id}" method="post" 
+        input type="text" name="input_description"
+        input type="submit" value="Submit"
+
+
+h3 Andra kommentarer:
+- comment_on_beatmap.each do |comment|
+    p.kommentarer
+        b = "(" + comment["comment_text"] + ")"
+        = " - " + comment["username"]
+end 

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+html lang="en"
+    head
+        meta charset="UTF-8"/
+        meta http-equiv="X-UA-Compatible" content="IE=edge"/
+        meta name="viewport" content="width=device-width, initial-scale=1.0"/
+        title Document
+        link rel="stylesheet" href="/css/style.css"/
+    body 
+
+        a href="/"
+            h2 Mina fav osu låtar
+
+        nav 
+            a href="/users/new" 
+                p register
+            a href="/users/login"
+                p login  
+            - if session[:id] != nil        
+                a href="/mappers/new"
+                    p regristera ny mapper (Login Krävs)
+                a href="/genres/new"
+                    p regristera ny genre (Login Krävs)
+            - if session[:role] == "Admin"
+                a href="/mappers/edit"
+                    p Edit mapper name (Admin Krävs)
+                a href="/mappers/delete"
+                    p Delete mapper name (Admin Krävs)
+                a href="/genres/edit"
+                    p Edit genres name (Admin Krävs)
+                a href="/genres/delete"
+                    p Delete genres name (Admin Krävs) 
+                a href="/beatmaps/new"
+                    p regristera ny beatmap (Admin krävs)
+                a href="/beatmaps/delete"
+                    p Delete beatmaps (Admin Krävs) 
+==yield

@@ -1,0 +1,12 @@
+nav{
+    display: flex;
+}
+nav>a{
+    margin: 10px;
+    margin-right: 11px;
+}
+
+.kommentarer{
+    margin: 25px;
+    margin-bottom: 50px;
+}

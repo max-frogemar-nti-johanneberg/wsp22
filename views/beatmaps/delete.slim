@@ -1,0 +1,7 @@
+h2 delete a BEATMAP from the databas
+
+form action="/beatmaps/delete" method="post" 
+ select name="beatmap_del_name"
+    - @beatmaps.each do |beatmap|
+       option value="#{beatmap["id"]}" #{beatmap["title"]}
+ input type="submit" value="Del beatmap IRREVERSIABLE"/

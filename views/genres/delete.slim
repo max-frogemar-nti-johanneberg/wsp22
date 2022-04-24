@@ -1,0 +1,9 @@
+h2 delete a GENRE from the databas
+
+form action="/genres/delete" method="post" 
+ select name="genre_del_name"
+    - @genres.each do |genre|
+       option value="#{genre["id"]}" #{genre["name"]}
+ input type="submit" value="Del genre IRREVERSIABLE"/
+
+ 
