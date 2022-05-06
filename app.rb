@@ -11,9 +11,8 @@ include Model
 # Display Landing Page
 #
 get('/') do 
-    db = open_data_base()
-    for_homepage = db.execute("SELECT * FROM beatmap")
-    slim(:"homepage",locals:{homepage_title_song:for_homepage})
+    for_title_homepage = all_from_beatmap()
+    slim(:"index",locals:{homepage_title_song:for_title_homepage})
 end
 
 # Displays an input for new users
@@ -31,7 +30,7 @@ end
 #
 # @return [Hash]
 #   * :message[String] the error message with a link back to the users/new
-post('/users/new') do
+post('/users') do
     username = params[:username]
     password = params[:password]
     password_confirm = params[:password_confirm]
@@ -42,8 +41,7 @@ post('/users/new') do
     else
         if (password == password_confirm)
             password_digest = BCrypt::Password.create(password)
-            db = SQLite3::Database.new('db/relationship_osu_site.db')
-            db.execute("INSERT INTO user (username,password) VALUES (?,?)",username,password_digest)
+            insert_into_user(["username","password"], [username, password_digest])
             redirect('/')
         else
             "<h2>Lösenord matchade inte!</h2>
@@ -68,8 +66,7 @@ end
 post('/users/login') do
     username = params[:username]
     password = params[:password]
-    db = open_data_base()
-    result = db.execute("SELECT * FROM user WHERE username = ?",username).first
+    result = all_from_user_where_blank_first("username", username)
     
     if result != nil
         pwdigest = result["password"]
@@ -98,13 +95,12 @@ end
 #
 # @params [Hash] params form data
 # @option params [String] mapper name for the mapper user
-post('/mappers/new') do
+post('/mappers') do
     mapper_name = params[:mapper_name]
 
-    db = SQLite3::Database.new('db/relationship_osu_site.db')
-    db.execute("INSERT INTO mapper (name) VALUES (?)",mapper_name)
+    insert_into_mapper("name", mapper_name)
+
     redirect('/mappers/new')
-    
 end
 
 # Uses session information to confirm access to mappers/edit
@@ -129,11 +125,11 @@ end
 # @params [Hash] params form data
 # @option params[String] user input to change mapper name into
 # @option params[String] users select of which mapper name to change from
-post('/mappers/edit') do
+post('/mappers/update') do
     mapper_edit_name_input = params[:mapper_edit_name_input]
     mapper_edit_name_select = params[:mapper_edit_name_select]
 
-    db = open_data_base()
+    db = open_data_base_with_hash()
     db.execute('UPDATE mapper SET name=? WHERE id = ?', mapper_edit_name_input, mapper_edit_name_select)
     redirect('/mappers/edit')
 end
@@ -150,7 +146,7 @@ end
 
 # Displays a select option to delete row in mapper table
 get('/mappers/delete') do 
-    db = open_data_base()
+    db = open_data_base_with_hash()
     @mappers = db.execute("SELECT * FROM mapper")
     slim(:"/mappers/delete")
 end
@@ -163,7 +159,7 @@ end
 post('/mappers/delete') do
     mapper_del_name = params[:mapper_del_name]
 
-    db = open_data_base()
+    db = open_data_base_with_hash()
     db.execute("DELETE FROM mapper WHERE id = ?",mapper_del_name)
     redirect('/mappers/delete')
 end
@@ -177,10 +173,10 @@ end
 #
 # @params [Hash] params form data
 # @option params [String] genre name for the genre user
-post('/genres/new') do
+post('/genres') do
     genre_name = params[:genre_name]
 
-    db = SQLite3::Database.new('db/relationship_osu_site.db')
+    db = open_data_base()
     db.execute("INSERT INTO genre (name) VALUES (?)",genre_name)
     redirect('/genres/new')    
 end
@@ -197,7 +193,7 @@ end
 
 # Displays an input and an option for changes in genres
 get('/genres/edit') do
-    db = open_data_base()
+    db = open_data_base_with_hash()
     @genres = db.execute('SELECT * FROM genre')
     slim(:"/genres/edit")
 end
@@ -207,11 +203,11 @@ end
 # @params [Hash] params form data
 # @option params[String] user input to change genre name into
 # @option params[String] users select of which genre name to change from
-post('/genres/edit') do
+post('/genres/update') do
     genre_edit_name_input = params[:genre_edit_name_input]
     genre_edit_name_select = params[:genre_edit_name_select]
 
-    db = open_data_base()
+    db = open_data_base_with_hash()
     db.execute('UPDATE genre SET name=? WHERE id = ?', genre_edit_name_input, genre_edit_name_select)
     redirect('/genres/edit')
 end
@@ -228,7 +224,7 @@ end
 
 # Displays a select option to delete row in genre table
 get('/genres/delete') do 
-    db = open_data_base()
+    db = open_data_base_with_hash()
     @genres = db.execute("SELECT * FROM genre")
     slim(:"/genres/delete")
 end
@@ -240,7 +236,7 @@ end
 post('/genres/delete') do
     genre_del_name = params[:genre_del_name]
 
-    db = open_data_base()
+    db = open_data_base_with_hash()
     db.execute("DELETE FROM genre WHERE id = ?",genre_del_name)
     redirect('/genres/delete')
 end
@@ -257,7 +253,7 @@ end
 
 # Displays multible input options for beatmap
 get('/beatmaps/new') do 
-    db = open_data_base()
+    open_data_base_with_hash()
     user_role = db.execute("SELECT role FROM user WHERE id = ?",session[:id]).first["role"]
 
     if user_role == "Admin"
@@ -278,14 +274,14 @@ end
 # @option params [Integer] genre id for the genre_id
 # @option params [Integer] mapper id for the mapper_id
 # @option params [String] link to a the beatmap for the link
-post('/beatmaps/new') do
+post('/beatmaps') do
     title_name = params[:title_name]
     description_beatmap = params[:description_beatmap]
     genre_for_beatmap = params[:genre_for_beatmap]
     mapper_for_beatmap = params[:mapper_for_beatmap]
     link_to_beatmap = params[:link_to_beatmap]
 
-    db = SQLite3::Database.new('db/relationship_osu_site.db')
+    db = open_data_base()
     db.execute("INSERT INTO beatmap (genre_id, mapper_id, title, description, link) VALUES (?, ?, ?, ?, ?)", genre_for_beatmap, mapper_for_beatmap, title_name, description_beatmap, link_to_beatmap)
     redirect('/beatmaps/new') 
 end
@@ -302,7 +298,7 @@ end
 
 # Displays a select option to delete row in beatmap table
 get('/beatmaps/delete') do
-    db = open_data_base()
+    db = open_data_base_with_hash()
     @beatmaps = db.execute("SELECT * FROM beatmap")
     slim(:"/beatmaps/delete")
 end
@@ -314,7 +310,7 @@ end
 post('/beatmaps/delete') do
     beatmap_del_name = params[:beatmap_del_name]
     
-    db = open_data_base()
+    db = open_data_base_with_hash()
     db.execute('DELETE FROM beatmap WHERE id = ?', beatmap_del_name)
     redirect('/beatmaps/delete')
 end
@@ -332,7 +328,7 @@ end
 # @return[String] comment text feom comment
 get('/beatmaps/:id') do 
     id = params[:id]
-    db = open_data_base()
+    db = open_data_base_with_hash()
     title = db.execute("SELECT title FROM beatmap WHERE id = ?", id).first["title"]
     genre_id_from_beatmap = db.execute("SELECT genre_id FROM beatmap WHERE id = ?", id).first["genre_id"]
     genre = db.execute("SELECT name FROM genre INNER JOIN beatmap ON genre.id = beatmap.genre_id WHERE genre.id = ?", genre_id_from_beatmap).first["name"]
@@ -340,7 +336,7 @@ get('/beatmaps/:id') do
     mapper = db.execute("SELECT name FROM mapper INNER JOIN beatmap ON mapper.id = beatmap.mapper_id WHERE mapper.id = ?", mapper_id_from_beatmap).first["name"]
     description = db.execute("SELECT description FROM beatmap WHERE id = ?", id).first["description"]
     link_for_beatmap = db.execute("SELECT link FROM beatmap WHERE id = ?", id).first["link"]
-    comment_on_beatmap = db.execute('SELECT username, comment_text FROM comment INNER JOIN  user ON user_id = user.id WHERE beatmap_id = ?', id)
+    comment_on_beatmap = db.execute("SELECT username, comment_text FROM comment INNER JOIN  user ON user_id = user.id WHERE beatmap_id = ?", id)
 
     slim(:"beatmaps/show", locals:{title:title, genre:genre, mapper:mapper, description:description, id:id, comment_on_beatmap:comment_on_beatmap, link_for_beatmap:link_for_beatmap})
 end
@@ -356,7 +352,7 @@ post('/beatmaps/:id') do
     user_id = session[:id]
     beatmap_id = params[:id]
 
-    db = open_data_base()
+    db = open_data_base_with_hash()
     db.execute('INSERT INTO comment (comment_text, user_id, beatmap_id) VALUES(?,?,?)', input_description, user_id, beatmap_id)
     redirect("/beatmaps/#{beatmap_id}")
 end
