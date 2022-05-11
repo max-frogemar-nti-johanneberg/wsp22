@@ -115,8 +115,8 @@ end
 
 # Displays an input and an option for changes in mappers
 get('/mappers/edit') do
-    db = open_data_base()
-    @mappers = db.execute('SELECT * FROM mapper')
+    select_all_from_genre()
+
     slim(:"/mappers/edit")
 end
 
@@ -129,8 +129,8 @@ post('/mappers/update') do
     mapper_edit_name_input = params[:mapper_edit_name_input]
     mapper_edit_name_select = params[:mapper_edit_name_select]
 
-    db = open_data_base_with_hash()
-    db.execute('UPDATE mapper SET name=? WHERE id = ?', mapper_edit_name_input, mapper_edit_name_select)
+    edit_name_of_genre(mapper_edit_name_input, mapper_edit_name_select)
+
     redirect('/mappers/edit')
 end
 
@@ -146,8 +146,7 @@ end
 
 # Displays a select option to delete row in mapper table
 get('/mappers/delete') do 
-    db = open_data_base_with_hash()
-    @mappers = db.execute("SELECT * FROM mapper")
+    select_all_from_mapper()
     slim(:"/mappers/delete")
 end
 
@@ -159,8 +158,7 @@ end
 post('/mappers/delete') do
     mapper_del_name = params[:mapper_del_name]
 
-    db = open_data_base_with_hash()
-    db.execute("DELETE FROM mapper WHERE id = ?",mapper_del_name)
+    delete_mapper(mapper_del_name)
     redirect('/mappers/delete')
 end
 
@@ -176,8 +174,7 @@ end
 post('/genres') do
     genre_name = params[:genre_name]
 
-    db = open_data_base()
-    db.execute("INSERT INTO genre (name) VALUES (?)",genre_name)
+    insert_into_genre("name", genre_name)
     redirect('/genres/new')    
 end
 
@@ -193,8 +190,7 @@ end
 
 # Displays an input and an option for changes in genres
 get('/genres/edit') do
-    db = open_data_base_with_hash()
-    @genres = db.execute('SELECT * FROM genre')
+    select_all_from_genre()
     slim(:"/genres/edit")
 end
 
@@ -207,8 +203,7 @@ post('/genres/update') do
     genre_edit_name_input = params[:genre_edit_name_input]
     genre_edit_name_select = params[:genre_edit_name_select]
 
-    db = open_data_base_with_hash()
-    db.execute('UPDATE genre SET name=? WHERE id = ?', genre_edit_name_input, genre_edit_name_select)
+    edit_name_of_genre(genre_edit_name_input, genre_edit_name_select)
     redirect('/genres/edit')
 end
 
@@ -224,8 +219,7 @@ end
 
 # Displays a select option to delete row in genre table
 get('/genres/delete') do 
-    db = open_data_base_with_hash()
-    @genres = db.execute("SELECT * FROM genre")
+    select_all_from_genre()
     slim(:"/genres/delete")
 end
 
@@ -236,8 +230,7 @@ end
 post('/genres/delete') do
     genre_del_name = params[:genre_del_name]
 
-    db = open_data_base_with_hash()
-    db.execute("DELETE FROM genre WHERE id = ?",genre_del_name)
+    delete_genre(genre_del_name)
     redirect('/genres/delete')
 end
 
@@ -253,12 +246,11 @@ end
 
 # Displays multible input options for beatmap
 get('/beatmaps/new') do 
-    open_data_base_with_hash()
-    user_role = db.execute("SELECT role FROM user WHERE id = ?",session[:id]).first["role"]
+    user_role = select_blank_from_user_where_id("role", session[:id]).first["role"]
 
     if user_role == "Admin"
-        @genres = db.execute("SELECT * FROM genre")
-        @mappers = db.execute("SELECT * FROM mapper")
+        @genres = select_all_from_genre()
+        @mappers = select_all_from_mapper()
         slim(:"/beatmaps/new")
     else
         "Du har inte tillgång till denna sidan"
@@ -281,8 +273,7 @@ post('/beatmaps') do
     mapper_for_beatmap = params[:mapper_for_beatmap]
     link_to_beatmap = params[:link_to_beatmap]
 
-    db = open_data_base()
-    db.execute("INSERT INTO beatmap (genre_id, mapper_id, title, description, link) VALUES (?, ?, ?, ?, ?)", genre_for_beatmap, mapper_for_beatmap, title_name, description_beatmap, link_to_beatmap)
+    insert_into_beatmap([genre_id, mapper_id, title, description, link], [genre_for_beatmap, mapper_for_beatmap, title_name, description_beatmap, link_to_beatmap])
     redirect('/beatmaps/new') 
 end
 
@@ -298,8 +289,7 @@ end
 
 # Displays a select option to delete row in beatmap table
 get('/beatmaps/delete') do
-    db = open_data_base_with_hash()
-    @beatmaps = db.execute("SELECT * FROM beatmap")
+    select_all_from_beatmap()
     slim(:"/beatmaps/delete")
 end
 
@@ -310,8 +300,7 @@ end
 post('/beatmaps/delete') do
     beatmap_del_name = params[:beatmap_del_name]
     
-    db = open_data_base_with_hash()
-    db.execute('DELETE FROM beatmap WHERE id = ?', beatmap_del_name)
+    delete_beatmap(beatmap_del_name)
     redirect('/beatmaps/delete')
 end
 
@@ -329,9 +318,9 @@ end
 get('/beatmaps/:id') do 
     id = params[:id]
     db = open_data_base_with_hash()
-    title = db.execute("SELECT title FROM beatmap WHERE id = ?", id).first["title"]
-    genre_id_from_beatmap = db.execute("SELECT genre_id FROM beatmap WHERE id = ?", id).first["genre_id"]
-    genre = db.execute("SELECT name FROM genre INNER JOIN beatmap ON genre.id = beatmap.genre_id WHERE genre.id = ?", genre_id_from_beatmap).first["name"]
+    title = select_title_from_beatmap_where_id(id).first["title"]
+    genre_id_from_beatmap = select_genreid_from_beatmap_where_id(id).first["genre_id"]
+    genre = innerjoin_genrename_with_beatmap_genre_id(genre_id_from_beatmap).first["name"]
     mapper_id_from_beatmap = db.execute("SELECT mapper_id FROM beatmap WHERE id = ?", id).first["mapper_id"]
     mapper = db.execute("SELECT name FROM mapper INNER JOIN beatmap ON mapper.id = beatmap.mapper_id WHERE mapper.id = ?", mapper_id_from_beatmap).first["name"]
     description = db.execute("SELECT description FROM beatmap WHERE id = ?", id).first["description"]
@@ -352,8 +341,7 @@ post('/beatmaps/:id') do
     user_id = session[:id]
     beatmap_id = params[:id]
 
-    db = open_data_base_with_hash()
-    db.execute('INSERT INTO comment (comment_text, user_id, beatmap_id) VALUES(?,?,?)', input_description, user_id, beatmap_id)
+    insert_into_comment([comment_text, user_id, beatmap_id], [input_description, user_id, beatmap_id])
     redirect("/beatmaps/#{beatmap_id}")
 end
 
