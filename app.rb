@@ -31,6 +31,11 @@ end
 # @return [Hash]
 #   * :message[String] the error message with a link back to the users/new
 post('/users') do
+    if session[:timer] != nil
+        return "Du har redan regristrerat eller loggat in! Logga in Istället!
+        <a href='/users/new'> Gå tillbaka </a>"
+    end
+
     username = params[:username]
     password = params[:password]
     password_confirm = params[:password_confirm]
@@ -42,6 +47,7 @@ post('/users') do
         if (password == password_confirm)
             password_digest = BCrypt::Password.create(password)
             insert_into_user(["username","password"], [username, password_digest])
+            user_session_timer()
             redirect('/')
         else
             "<h2>Lösenord matchade inte!</h2>
@@ -64,6 +70,11 @@ end
 # @return [Hash]
 #   * :message [String] the error message with a link back to the users/login
 post('/users/login') do
+    if session[:timer] != nil && Time.now - session[:timer] < 5
+        return "Du loggar in för snabbt! Kolla dina uppgifter noggagrant innan du submitar!
+        <a href='/users/new'> Gå tillbaka </a>"
+    end
+
     username = params[:username]
     password = params[:password]
     result = all_from_user_where_blank_first("username", username)
@@ -75,12 +86,15 @@ post('/users/login') do
         if BCrypt::Password.new(pwdigest) == password
         session[:id] = id
         session[:role] = role
+        user_session_timer()
         redirect('/')
         else
+            user_session_timer()
             "<h2>Ditt namn eller lösenord matchade inte!</h2>
             <a href='/users/login'> Gå tillbaka </a>"
         end
     else
+        user_session_timer()
         "<h2>Ditt namn eller lösenord matchade inte!</h2>
         <a href='/users/login'> Gå tillbaka </a>"
     end
@@ -96,10 +110,14 @@ end
 # @params [Hash] params form data
 # @option params [String] mapper name for the mapper user
 post('/mappers') do
+    if session[:timer] != nil && Time.now - session[:timer] < 5
+        return "Lägg inte till mappers så snabbt >:|
+        <a href='/users/new'> Gå tillbaka </a>"
+    end
+
     mapper_name = params[:mapper_name]
-
+    user_session_timer()
     insert_into_mapper("name", mapper_name)
-
     redirect('/mappers/new')
 end
 
@@ -115,7 +133,7 @@ end
 
 # Displays an input and an option for changes in mappers
 get('/mappers/edit') do
-    select_all_from_genre()
+    @mappers = select_all_from_mapper()
 
     slim(:"/mappers/edit")
 end
@@ -129,7 +147,7 @@ post('/mappers/update') do
     mapper_edit_name_input = params[:mapper_edit_name_input]
     mapper_edit_name_select = params[:mapper_edit_name_select]
 
-    edit_name_of_genre(mapper_edit_name_input, mapper_edit_name_select)
+    edit_name_of_mapper(mapper_edit_name_input, mapper_edit_name_select)
 
     redirect('/mappers/edit')
 end
@@ -146,7 +164,7 @@ end
 
 # Displays a select option to delete row in mapper table
 get('/mappers/delete') do 
-    select_all_from_mapper()
+    @mappers = select_all_from_mapper()
     slim(:"/mappers/delete")
 end
 
@@ -172,8 +190,12 @@ end
 # @params [Hash] params form data
 # @option params [String] genre name for the genre user
 post('/genres') do
+    if session[:timer] != nil && Time.now - session[:timer] < 5
+        return "Lägg inte till genres så snabbt >:|
+        <a href='/users/new'> Gå tillbaka </a>"
+    end
+    user_session_timer()
     genre_name = params[:genre_name]
-
     insert_into_genre("name", genre_name)
     redirect('/genres/new')    
 end
@@ -190,7 +212,7 @@ end
 
 # Displays an input and an option for changes in genres
 get('/genres/edit') do
-    select_all_from_genre()
+    @genres = select_all_from_genre()
     slim(:"/genres/edit")
 end
 
@@ -219,7 +241,7 @@ end
 
 # Displays a select option to delete row in genre table
 get('/genres/delete') do 
-    select_all_from_genre()
+    @genres = select_all_from_genre()
     slim(:"/genres/delete")
 end
 
@@ -246,16 +268,9 @@ end
 
 # Displays multible input options for beatmap
 get('/beatmaps/new') do 
-    user_role = select_blank_from_user_where_id("role", session[:id]).first["role"]
-
-    if user_role == "Admin"
-        @genres = select_all_from_genre()
-        @mappers = select_all_from_mapper()
-        slim(:"/beatmaps/new")
-    else
-        "Du har inte tillgång till denna sidan"
-        redirect('/error')
-    end
+    @genres = select_all_from_genre()
+    @mappers = select_all_from_mapper()
+    slim(:"/beatmaps/new")
 end
 
 # Attempts to insert a new row in the beatmap table
@@ -273,7 +288,7 @@ post('/beatmaps') do
     mapper_for_beatmap = params[:mapper_for_beatmap]
     link_to_beatmap = params[:link_to_beatmap]
 
-    insert_into_beatmap([genre_id, mapper_id, title, description, link], [genre_for_beatmap, mapper_for_beatmap, title_name, description_beatmap, link_to_beatmap])
+    insert_into_beatmap(["genre_id", "mapper_id", "title", "description", "link"], [genre_for_beatmap, mapper_for_beatmap, title_name, description_beatmap, link_to_beatmap])
     redirect('/beatmaps/new') 
 end
 
@@ -289,7 +304,7 @@ end
 
 # Displays a select option to delete row in beatmap table
 get('/beatmaps/delete') do
-    select_all_from_beatmap()
+    @beatmaps = select_all_from_beatmap()
     slim(:"/beatmaps/delete")
 end
 
@@ -321,11 +336,11 @@ get('/beatmaps/:id') do
     title = select_title_from_beatmap_where_id(id).first["title"]
     genre_id_from_beatmap = select_genreid_from_beatmap_where_id(id).first["genre_id"]
     genre = innerjoin_genrename_with_beatmap_genre_id(genre_id_from_beatmap).first["name"]
-    mapper_id_from_beatmap = db.execute("SELECT mapper_id FROM beatmap WHERE id = ?", id).first["mapper_id"]
-    mapper = db.execute("SELECT name FROM mapper INNER JOIN beatmap ON mapper.id = beatmap.mapper_id WHERE mapper.id = ?", mapper_id_from_beatmap).first["name"]
-    description = db.execute("SELECT description FROM beatmap WHERE id = ?", id).first["description"]
-    link_for_beatmap = db.execute("SELECT link FROM beatmap WHERE id = ?", id).first["link"]
-    comment_on_beatmap = db.execute("SELECT username, comment_text FROM comment INNER JOIN  user ON user_id = user.id WHERE beatmap_id = ?", id)
+    mapper_id_from_beatmap = select_mapperid_from_beatmap_where_id(id).first["mapper_id"]
+    mapper = select_name_from_mapper_innerjoin_on_mapperid_where_mapperidfrombeatmap(mapper_id_from_beatmap).first["name"]
+    description = select_description_from_beatmap_where_id(id).first["description"]
+    link_for_beatmap = select_link_from_beatmap_where_id(id).first["link"]
+    comment_on_beatmap = select_username_and_commenttext_from_comment_inner_join_on_userid_where_beatmapid(id)
 
     slim(:"beatmaps/show", locals:{title:title, genre:genre, mapper:mapper, description:description, id:id, comment_on_beatmap:comment_on_beatmap, link_for_beatmap:link_for_beatmap})
 end
@@ -340,8 +355,19 @@ post('/beatmaps/:id') do
     input_description = params[:input_description]
     user_id = session[:id]
     beatmap_id = params[:id]
+    
+    insert_into_comment(["comment_text", "user_id", "beatmap_id"], [input_description, user_id, beatmap_id])
+    redirect("/beatmaps/#{beatmap_id}")
+end
 
-    insert_into_comment([comment_text, user_id, beatmap_id], [input_description, user_id, beatmap_id])
+post('/beatmaps/:beatmap_id/delete_comment/:id') do
+    if session[:timer] != nil && Time.now - session[:timer] < 5
+        return "Spamma inte kommentarer >:|
+        <a href='/users/new'> Gå tillbaka </a>"
+    end
+    beatmap_id = params[:beatmap_id]
+    comment_id = params[:id]
+    delete_comment(comment_id)
     redirect("/beatmaps/#{beatmap_id}")
 end
 

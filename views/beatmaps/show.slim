@@ -19,7 +19,10 @@ h3 Skriv en kommentar (Måste vara inloggad)
 
 h3 Andra kommentarer:
 - comment_on_beatmap.each do |comment|
-    p.kommentarer
+    .kommentarer
         b = "(" + comment["comment_text"] + ")"
         = " - " + comment["username"]
+        - if comment["user_id"] == session[:id]
+            form id="delete_button" action="/beatmaps/#{id}/delete_comment/#{comment["id"]}" method="post" 
+                input type="submit" name="delete_comment_command" value="Delete comment"
 end 

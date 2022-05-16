@@ -7,6 +7,13 @@ nav>a{
 }
 
 .kommentarer{
+    display: flex;
+    flex-direction: row;
     margin: 25px;
     margin-bottom: 50px;
+}
+
+#delete_button{
+    display: inline-block;
+    margin-left: 10px;
 }
