@@ -174,9 +174,10 @@ end
 # @option params[String] user input to change mapper name into
 # @option params[String] users select of name of which row to delete from mapper
 post('/mappers/delete') do
-    mapper_del_name = params[:mapper_del_name]
+    mapper_id = params[:mapper_id]
 
-    delete_mapper(mapper_del_name)
+    delete_fom_beatmap_mapper_id(mapper_id)
+    delete_mapper(mapper_id)
     redirect('/mappers/delete')
 end
 
@@ -250,9 +251,10 @@ end
 # @params [Hash] params form data
 # @option params[String] users select name of which row to delete from genre
 post('/genres/delete') do
-    genre_del_name = params[:genre_del_name]
+    genre_id = params[:genre_id]
 
-    delete_genre(genre_del_name)
+    delete_fom_beatmap_genre_id(genre_id)
+    delete_genre(genre_id)
     redirect('/genres/delete')
 end
 

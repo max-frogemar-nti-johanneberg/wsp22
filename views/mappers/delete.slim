@@ -1,7 +1,7 @@
 h2 delete a MAPPER from the databas
 
 form action="/mappers/delete" method="post" 
- select name="mapper_del_name"
+ select name="mapper_id"
     - @mappers.each do |mapper|
        option value="#{mapper["id"]}" #{mapper["name"]}
  input type="submit" value="Del mapper IRREVERSIABLE"/

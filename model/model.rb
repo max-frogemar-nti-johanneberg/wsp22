@@ -53,9 +53,9 @@ module Model
         return result
     end
 
-    def delete_mapper(name_of_mapper)
+    def delete_mapper(mapper_id)
         db = open_data_base_with_hash()
-        db.execute("DELETE FROM mapper WHERE id = ?",name_of_mapper)
+        db.execute("DELETE FROM mapper WHERE id = ?",mapper_id)
     end
 
     def insert_into_genre(kolumns, values)
@@ -68,9 +68,9 @@ module Model
         db.execute('UPDATE genre SET name=? WHERE id = ?', genre_edit_name_input, genre_edit_name_select)
     end
 
-    def delete_genre(name_of_genre)
+    def delete_genre(genre_id)
         db = open_data_base_with_hash()
-        db.execute("DELETE FROM genre WHERE id = ?",name_of_genre)
+        db.execute("DELETE FROM genre WHERE id = ?", genre_id)
     end  
 
     def select_blank_from_user_where_id(name, id)
@@ -151,6 +151,16 @@ module Model
     def delete_comment(id)
         db = open_data_base_with_hash()
         db.execute("DELETE FROM comment WHERE id = ?",id)
+    end
+
+    def delete_fom_beatmap_mapper_id(id) 
+        db = open_data_base_with_hash()
+        db.execute("DELETE FROM beatmap WHERE mapper_id = ?", id)
+    end
+
+    def delete_fom_beatmap_genre_id(id) 
+        db = open_data_base_with_hash()
+        db.execute("DELETE FROM beatmap WHERE genre_id = ?", id)
     end
 end
     
