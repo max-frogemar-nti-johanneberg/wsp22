@@ -1,7 +1,4 @@
 module Model
-    def user_session_timer
-        session[:timer] = Time.now()
-    end
 
     def open_data_base_with_hash()
         db = SQLite3::Database.new('db/relationship_osu_site.db')
@@ -161,6 +158,12 @@ module Model
     def delete_fom_beatmap_genre_id(id) 
         db = open_data_base_with_hash()
         db.execute("DELETE FROM beatmap WHERE genre_id = ?", id)
+    end
+
+    def select_userid_from_comment(comment_id)
+        db = open_data_base_with_hash()
+        result = db.execute("SELECT user_id FROM comment WHERE id = ?", comment_id)
+        return result
     end
 end
     

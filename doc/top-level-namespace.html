@@ -678,7 +678,7 @@
 
   
     <span class="summary_desc"><div class='inline'>
-<p>Attempts to insert a new row in the user table.</p>
+<p>creates a new user, updates the session and redirects to &#39;/&#39;.</p>
 </div></span>
   
 </li>
@@ -702,7 +702,7 @@
 
   
     <span class="summary_desc"><div class='inline'>
-<p>Gives user an session id and session role.</p>
+<p>Gives user an session id, seesion timer, and session role.</p>
 </div></span>
   
 </li>
@@ -805,10 +805,6 @@
       <pre class="lines">
 
 
-335
-336
-337
-338
 339
 340
 341
@@ -818,10 +814,14 @@
 345
 346
 347
-348</pre>
+348
+349
+350
+351
+352</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 335</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 339</span>
 
 <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/beatmaps/:id</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> 
     <span class='id identifier rubyid_id'>id</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span>
@@ -870,13 +870,13 @@
       <pre class="lines">
 
 
-308
-309
-310
-311</pre>
+312
+313
+314
+315</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 308</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 312</span>
 
 <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/beatmaps/delete</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='ivar'>@beatmaps</span> <span class='op'>=</span> <span class='id identifier rubyid_select_all_from_beatmap'><span class='object_link'><a href="Model.html#select_all_from_beatmap-instance_method" title="Model#select_all_from_beatmap (method)">select_all_from_beatmap</a></span></span><span class='lparen'>(</span><span class='rparen'>)</span>
@@ -915,14 +915,14 @@
       <pre class="lines">
 
 
-272
-273
-274
-275
-276</pre>
+276
+277
+278
+279
+280</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 272</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 276</span>
 
 <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/beatmaps/new</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> 
     <span class='ivar'>@genres</span> <span class='op'>=</span> <span class='id identifier rubyid_select_all_from_genre'><span class='object_link'><a href="Model.html#select_all_from_genre-instance_method" title="Model#select_all_from_genre (method)">select_all_from_genre</a></span></span><span class='lparen'>(</span><span class='rparen'>)</span>
@@ -962,12 +962,12 @@
       <pre class="lines">
 
 
-377
-378
-379</pre>
+381
+382
+383</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 377</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 381</span>
 
 <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/error</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='id identifier rubyid_slim'>slim</span><span class='lparen'>(</span><span class='symbol'>:&quot;/error&quot;</span><span class='rparen'>)</span>
@@ -1005,13 +1005,13 @@
       <pre class="lines">
 
 
-244
-245
-246
-247</pre>
+248
+249
+250
+251</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 244</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 248</span>
 
 <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/genres/delete</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> 
     <span class='ivar'>@genres</span> <span class='op'>=</span> <span class='id identifier rubyid_select_all_from_genre'><span class='object_link'><a href="Model.html#select_all_from_genre-instance_method" title="Model#select_all_from_genre (method)">select_all_from_genre</a></span></span><span class='lparen'>(</span><span class='rparen'>)</span>
@@ -1050,13 +1050,13 @@
       <pre class="lines">
 
 
-215
-216
-217
-218</pre>
+219
+220
+221
+222</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 215</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 219</span>
 
 <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/genres/edit</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='ivar'>@genres</span> <span class='op'>=</span> <span class='id identifier rubyid_select_all_from_genre'><span class='object_link'><a href="Model.html#select_all_from_genre-instance_method" title="Model#select_all_from_genre (method)">select_all_from_genre</a></span></span><span class='lparen'>(</span><span class='rparen'>)</span>
@@ -1095,12 +1095,12 @@
       <pre class="lines">
 
 
-185
-186
-187</pre>
+189
+190
+191</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 185</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 189</span>
 
 <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/genres/new</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='id identifier rubyid_slim'>slim</span><span class='lparen'>(</span><span class='symbol'>:&quot;/genres/new&quot;</span><span class='rparen'>)</span>
@@ -1138,13 +1138,13 @@
       <pre class="lines">
 
 
-166
-167
-168
-169</pre>
+170
+171
+172
+173</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 166</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 170</span>
 
 <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/mappers/delete</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> 
     <span class='ivar'>@mappers</span> <span class='op'>=</span> <span class='id identifier rubyid_select_all_from_mapper'><span class='object_link'><a href="Model.html#select_all_from_mapper-instance_method" title="Model#select_all_from_mapper (method)">select_all_from_mapper</a></span></span><span class='lparen'>(</span><span class='rparen'>)</span>
@@ -1183,14 +1183,14 @@
       <pre class="lines">
 
 
-135
-136
-137
-138
-139</pre>
+139
+140
+141
+142
+143</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 135</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 139</span>
 
 <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/mappers/edit</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='ivar'>@mappers</span> <span class='op'>=</span> <span class='id identifier rubyid_select_all_from_mapper'><span class='object_link'><a href="Model.html#select_all_from_mapper-instance_method" title="Model#select_all_from_mapper (method)">select_all_from_mapper</a></span></span><span class='lparen'>(</span><span class='rparen'>)</span>
@@ -1230,12 +1230,12 @@
       <pre class="lines">
 
 
-104
-105
-106</pre>
+108
+109
+110</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 104</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 108</span>
 
 <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/mappers/new</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='id identifier rubyid_slim'>slim</span><span class='lparen'>(</span><span class='symbol'>:&quot;/mappers/new&quot;</span><span class='rparen'>)</span>
@@ -1273,12 +1273,12 @@
       <pre class="lines">
 
 
-60
-61
-62</pre>
+62
+63
+64</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 60</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 62</span>
 
 <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/users/login</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='id identifier rubyid_slim'>slim</span><span class='lparen'>(</span><span class='symbol'>:&#39;/users/login&#39;</span><span class='rparen'>)</span>
@@ -1361,19 +1361,19 @@
       <pre class="lines">
 
 
-286
-287
-288
-289
 290
 291
 292
 293
 294
-295</pre>
+295
+296
+297
+298
+299</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 286</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 290</span>
 
 <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/beatmaps</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='id identifier rubyid_title_name'>title_name</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:title_name</span><span class='rbracket'>]</span>
@@ -1405,19 +1405,19 @@
       <pre class="lines">
 
 
-365
-366
-367
-368
 369
 370
 371
 372
 373
-374</pre>
+374
+375
+376
+377
+378</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 365</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 369</span>
 
 <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/beatmaps/:beatmap_id/delete_comment/:id</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span><span class='lbracket'>[</span><span class='symbol'>:timer</span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='kw'>nil</span> <span class='op'>&amp;&amp;</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span> <span class='op'>-</span> <span class='id identifier rubyid_session'>session</span><span class='lbracket'>[</span><span class='symbol'>:timer</span><span class='rbracket'>]</span> <span class='op'>&lt;</span> <span class='int'>5</span>
@@ -1464,17 +1464,17 @@
       <pre class="lines">
 
 
-356
-357
-358
-359
 360
 361
 362
-363</pre>
+363
+364
+365
+366
+367</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 356</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 360</span>
 
 <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/beatmaps/:id</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='id identifier rubyid_input_description'>input_description</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:input_description</span><span class='rbracket'>]</span>
@@ -1519,15 +1519,15 @@
       <pre class="lines">
 
 
-317
-318
-319
-320
 321
-322</pre>
+322
+323
+324
+325
+326</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 317</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 321</span>
 
 <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/beatmaps/delete</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='id identifier rubyid_beatmap_del_name'>beatmap_del_name</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:beatmap_del_name</span><span class='rbracket'>]</span>
@@ -1570,19 +1570,19 @@
       <pre class="lines">
 
 
-193
-194
-195
-196
 197
 198
 199
 200
 201
-202</pre>
+202
+203
+204
+205
+206</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 193</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 197</span>
 
 <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/genres</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span><span class='lbracket'>[</span><span class='symbol'>:timer</span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='kw'>nil</span> <span class='op'>&amp;&amp;</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span> <span class='op'>-</span> <span class='id identifier rubyid_session'>session</span><span class='lbracket'>[</span><span class='symbol'>:timer</span><span class='rbracket'>]</span> <span class='op'>&lt;</span> <span class='int'>5</span>
@@ -1629,16 +1629,16 @@
       <pre class="lines">
 
 
-253
-254
-255
-256
 257
 258
-259</pre>
+259
+260
+261
+262
+263</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 253</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 257</span>
 
 <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/genres/delete</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='id identifier rubyid_genre_id'>genre_id</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:genre_id</span><span class='rbracket'>]</span>
@@ -1682,16 +1682,16 @@
       <pre class="lines">
 
 
-225
-226
-227
-228
 229
 230
-231</pre>
+231
+232
+233
+234
+235</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 225</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 229</span>
 
 <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/genres/update</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='id identifier rubyid_genre_edit_name_input'>genre_edit_name_input</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:genre_edit_name_input</span><span class='rbracket'>]</span>
@@ -1735,20 +1735,20 @@
       <pre class="lines">
 
 
-112
-113
-114
-115
 116
 117
 118
 119
 120
 121
-122</pre>
+122
+123
+124
+125
+126</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 112</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 116</span>
 
 <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/mappers</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span><span class='lbracket'>[</span><span class='symbol'>:timer</span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='kw'>nil</span> <span class='op'>&amp;&amp;</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span> <span class='op'>-</span> <span class='id identifier rubyid_session'>session</span><span class='lbracket'>[</span><span class='symbol'>:timer</span><span class='rbracket'>]</span> <span class='op'>&lt;</span> <span class='int'>5</span>
@@ -1796,16 +1796,16 @@
       <pre class="lines">
 
 
-176
-177
-178
-179
 180
 181
-182</pre>
+182
+183
+184
+185
+186</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 176</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 180</span>
 
 <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/mappers/delete</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='id identifier rubyid_mapper_id'>mapper_id</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:mapper_id</span><span class='rbracket'>]</span>
@@ -1849,17 +1849,17 @@
       <pre class="lines">
 
 
-146
-147
-148
-149
 150
 151
 152
-153</pre>
+153
+154
+155
+156
+157</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 146</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 150</span>
 
 <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/mappers/update</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='id identifier rubyid_mapper_edit_name_input'>mapper_edit_name_input</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:mapper_edit_name_input</span><span class='rbracket'>]</span>
@@ -1886,14 +1886,80 @@
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Attempts to insert a new row in the user table</p>
+<p>creates a new user, updates the session and redirects to &#39;/&#39;</p>
 
 
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
+    <li>
+      
+        <span class='name'>params</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>form data</p>
+</div>
+      
+    </li>
   
+    <li>
+      
+        <span class='name'>username,</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>username for the user</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>password,</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>password for the user</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>password_confirm,</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>password_confirm for confirmation/same password</p>
+</div>
+      
+    </li>
+  
+</ul>
 
 <p class="tag_title">Returns:</p>
 <ul class="return">
@@ -1915,6 +1981,15 @@
   
 </ul>
 
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="Model.html#insert_into_user-instance_method" title="Model#insert_into_user (method)">Model#insert_into_user</a></span></li>
+    
+      <li><span class='object_link'><a href="Model.html#user_session_timer-instance_method" title="Model#user_session_timer (method)">Model#user_session_timer</a></span></li>
+    
+  </ul>
+
 
 
 </div><table class="source_code">
@@ -1923,8 +1998,6 @@
       <pre class="lines">
 
 
-33
-34
 35
 36
 37
@@ -1947,10 +2020,12 @@
 54
 55
 56
-57</pre>
+57
+58
+59</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 33</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 35</span>
 
 <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/users</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span><span class='lbracket'>[</span><span class='symbol'>:timer</span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='kw'>nil</span>
@@ -1994,7 +2069,7 @@
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Gives user an session id and session role</p>
+<p>Gives user an session id, seesion timer, and session role. Redirect to &#39;/&#39;</p>
 
 
   </div>
@@ -2023,6 +2098,15 @@
   
 </ul>
 
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="Model.html#user_session_timer-instance_method" title="Model#user_session_timer (method)">Model#user_session_timer</a></span></li>
+    
+      <li><span class='object_link'><a href="Model.html#all_from_user_where_blank_first-instance_method" title="Model#all_from_user_where_blank_first (method)">Model#all_from_user_where_blank_first</a></span></li>
+    
+  </ul>
+
 
 
 </div><table class="source_code">
@@ -2031,10 +2115,6 @@
       <pre class="lines">
 
 
-72
-73
-74
-75
 76
 77
 78
@@ -2060,10 +2140,14 @@
 98
 99
 100
-101</pre>
+101
+102
+103
+104
+105</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'app.rb', line 72</span>
+      <pre class="code"><span class="info file"># File 'app.rb', line 76</span>
 
 <span class='id identifier rubyid_post'>post</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/users/login</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
     <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span><span class='lbracket'>[</span><span class='symbol'>:timer</span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='kw'>nil</span> <span class='op'>&amp;&amp;</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span> <span class='op'>-</span> <span class='id identifier rubyid_session'>session</span><span class='lbracket'>[</span><span class='symbol'>:timer</span><span class='rbracket'>]</span> <span class='op'>&lt;</span> <span class='int'>5</span>
@@ -2105,9 +2189,9 @@
 </div>
 
       <div id="footer">
-  Generated on Tue May 17 20:23:34 2022 by
+  Generated on Wed May 18 10:11:21 2022 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.27 (ruby-3.1.2).
+  0.9.27 (ruby-3.0.3).
 </div>
 
     </div>

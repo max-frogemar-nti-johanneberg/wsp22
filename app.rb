@@ -21,21 +21,24 @@ get('/users/new') do
     slim(:"/users/new")
 end
 
-# Attempts to insert a new row in the user table
-#
-# @params [Hash] params form data
-# @option params [String] username for the table user
-# @option params [String] password for the table user
-# @option params [String] password_confirm for password confirmation
-#
-# @return [Hash]
-#   * :message[String] the error message with a link back to the users/new
-post('/users') do
+before ('/users') do 
     if session[:timer] != nil
         return "Du har redan regristrerat eller loggat in! Logga in Istället!
         <a href='/users/new'> Gå tillbaka </a>"
     end
-
+end
+# creates a new user, updates the session and redirects to '/'
+#
+# @param [Hash] params form data
+# @param [String] username, username for the user
+# @param [String] password, password for the user
+# @param [String] password_confirm, password_confirm for confirmation/same password
+#
+# @return [Hash]
+#   * :message [String] the error message with a link back to the users/new
+# @see Model#insert_into_user
+post('/users') do
+    session[:timer] = Time.now
     username = params[:username]
     password = params[:password]
     password_confirm = params[:password_confirm]
@@ -47,7 +50,7 @@ post('/users') do
         if (password == password_confirm)
             password_digest = BCrypt::Password.create(password)
             insert_into_user(["username","password"], [username, password_digest])
-            user_session_timer()
+            
             redirect('/')
         else
             "<h2>Lösenord matchade inte!</h2>
@@ -61,7 +64,7 @@ get('/users/login') do
     slim(:'/users/login')
 end
 
-# Gives user an session id and session role
+# Gives user an session id, seesion timer, and session role. Redirect to '/'
 #
 # @params [Hash] params form data
 # @option params [String] username from the user table
@@ -69,6 +72,7 @@ end
 #
 # @return [Hash]
 #   * :message [String] the error message with a link back to the users/login
+# @see Model#all_from_user_where_blank_first
 post('/users/login') do
     if session[:timer] != nil && Time.now - session[:timer] < 5
         return "Du loggar in för snabbt! Kolla dina uppgifter noggagrant innan du submitar!
@@ -86,15 +90,15 @@ post('/users/login') do
         if BCrypt::Password.new(pwdigest) == password
         session[:id] = id
         session[:role] = role
-        user_session_timer()
+        session[:timer] = Time.now
         redirect('/')
         else
-            user_session_timer()
+            session[:timer] = Time.now
             "<h2>Ditt namn eller lösenord matchade inte!</h2>
             <a href='/users/login'> Gå tillbaka </a>"
         end
     else
-        user_session_timer()
+        session[:timer] = Time.now
         "<h2>Ditt namn eller lösenord matchade inte!</h2>
         <a href='/users/login'> Gå tillbaka </a>"
     end
@@ -116,7 +120,7 @@ post('/mappers') do
     end
 
     mapper_name = params[:mapper_name]
-    user_session_timer()
+    session[:timer] = Time.now
     insert_into_mapper("name", mapper_name)
     redirect('/mappers/new')
 end
@@ -195,7 +199,7 @@ post('/genres') do
         return "Lägg inte till genres så snabbt >:|
         <a href='/users/new'> Gå tillbaka </a>"
     end
-    user_session_timer()
+    session[:timer] = Time.now
     genre_name = params[:genre_name]
     insert_into_genre("name", genre_name)
     redirect('/genres/new')    
@@ -363,14 +367,19 @@ post('/beatmaps/:id') do
 end
 
 post('/beatmaps/:beatmap_id/delete_comment/:id') do
-    if session[:timer] != nil && Time.now - session[:timer] < 5
-        return "Spamma inte kommentarer >:|
-        <a href='/users/new'> Gå tillbaka </a>"
+    if session[:id] == select_userid_from_comment(params[:id])
+        if session[:timer] != nil && Time.now - session[:timer] < 5
+            return "Spamma inte kommentarer >:|
+            <a href='/'> Gå tillbaka </a>"
+        end
+        beatmap_id = params[:beatmap_id]
+        comment_id = params[:id]
+        delete_comment(comment_id)
+        redirect("/beatmaps/#{beatmap_id}")
+    else
+        "Du kan inte radera denna kommentaren!
+        <a href='/'> Gå tillbaka </a>"
     end
-    beatmap_id = params[:beatmap_id]
-    comment_id = params[:id]
-    delete_comment(comment_id)
-    redirect("/beatmaps/#{beatmap_id}")
 end
 
 # Displays an error page containing message and link back
