@@ -11,7 +11,7 @@ include Model
 # Display Landing Page
 #
 get('/') do 
-    for_title_homepage = all_from_beatmap()
+    for_title_homepage = select_all_from_mapper()
     slim(:"index",locals:{homepage_title_song:for_title_homepage})
 end
 
@@ -21,21 +21,24 @@ get('/users/new') do
     slim(:"/users/new")
 end
 
+# Checks whether you have already registered and denies access if so
+#
+# @params [Hash] params form data
+# @option params[Integer] checks if you have session timer, if not continues
 before ('/users') do 
     if session[:timer] != nil
         return "Du har redan regristrerat eller loggat in! Logga in Istället!
         <a href='/users/new'> Gå tillbaka </a>"
     end
 end
-# creates a new user, updates the session and redirects to '/'
+
+# creates a new user and updates session
 #
-# @param [Hash] params form data
 # @param [String] username, username for the user
 # @param [String] password, password for the user
 # @param [String] password_confirm, password_confirm for confirmation/same password
 #
-# @return [Hash]
-#   * :message [String] the error message with a link back to the users/new
+#   * :message [String] if wrong inputs then an error message with a link back to the users/new
 # @see Model#insert_into_user
 post('/users') do
     session[:timer] = Time.now
@@ -60,25 +63,27 @@ post('/users') do
 end
 
 # Displays login page for new user
+#
 get('/users/login') do
     slim(:'/users/login')
 end
 
-# Gives user an session id, seesion timer, and session role. Redirect to '/'
+# Checks whether user login to quickly
 #
-# @params [Hash] params form data
-# @option params [String] username from the user table
-# @option params [String] password from the user table
+before ('/users/login') do
+    if Time.now - session[:timer] < 5
+        return "Du loggar in för snabbt! Kolla dina uppgifter noggagrant innan du submitar!
+        <a href='/users/new'> Gå tillbaka </a>" 
+    end
+end
+
+# Attemps login and give user session id, session role and updates session timer. Redirect to '/'
 #
-# @return [Hash]
-#   * :message [String] the error message with a link back to the users/login
+# @param [String] username, usernam from the user table to check if exists
+# @param [String] password, password from the user table to check if they match
+#
 # @see Model#all_from_user_where_blank_first
 post('/users/login') do
-    if session[:timer] != nil && Time.now - session[:timer] < 5
-        return "Du loggar in för snabbt! Kolla dina uppgifter noggagrant innan du submitar!
-        <a href='/users/new'> Gå tillbaka </a>"
-    end
-
     username = params[:username]
     password = params[:password]
     result = all_from_user_where_blank_first("username", username)
@@ -105,14 +110,16 @@ post('/users/login') do
 end
 
 # Displays an input for new mappers
+#
 get('/mappers/new') do
     slim(:"/mappers/new")
 end
 
-# Attempts to insert a new row in the mapper table
+# Attempts to insert a new row in the mapper table. Updates the session 
 #
-# @params [Hash] params form data
-# @option params [String] mapper name for the mapper user
+# @param [String] mapper name, used to insert into table 'mapper' column 'name'
+#
+# @see Model#insert_into_mapper
 post('/mappers') do
     if session[:timer] != nil && Time.now - session[:timer] < 5
         return "Lägg inte till mappers så snabbt >:|
@@ -127,8 +134,7 @@ end
 
 # Uses session information to confirm access to mappers/edit
 #
-# @params [Hash] params form data
-# @option params[String] checks whether user has correct role
+# param[String] role, checks whether user has correct role
 before ("/mappers/edit") do
     if session[:role] != "Admin"
         redirect('/error')
@@ -136,17 +142,19 @@ before ("/mappers/edit") do
 end
 
 # Displays an input and an option for changes in mappers
+#
 get('/mappers/edit') do
     @mappers = select_all_from_mapper()
 
     slim(:"/mappers/edit")
 end
 
-# Attempts to change existing name in a row in mapper table
+# Updates an existing 'name' in a row in 'mapper' table
 #
-# @params [Hash] params form data
-# @option params[String] user input to change mapper name into
-# @option params[String] users select of which mapper name to change from
+# @param[String] mapper_edit_name_input, uses users input to change mapper name
+# @param[String] mapper_edit_name_select, users select of which mapper name to change from
+#
+# @see Model#edit_name_of_mapper
 post('/mappers/update') do
     mapper_edit_name_input = params[:mapper_edit_name_input]
     mapper_edit_name_select = params[:mapper_edit_name_select]
@@ -158,8 +166,7 @@ end
 
 # Uses session information to confirm access to mappers/delete
 #
-# @params [Hash] params form data
-# @option params[String] checks whether user has correct role
+# param[String] role, checks whether user has correct role
 before ("/mappers/delete") do
     if session[:role] != "Admin"
         redirect('/error')
@@ -167,16 +174,19 @@ before ("/mappers/delete") do
 end
 
 # Displays a select option to delete row in mapper table
+#
+# @see Model#select_all_from_mapper
 get('/mappers/delete') do 
     @mappers = select_all_from_mapper()
     slim(:"/mappers/delete")
 end
 
-# Attempts to delete an existing row in mapper table
+# deletes an existing row in 'mapper' table and redirect to '/mappers/delete'
 #
-# @params [Hash] params form data
-# @option params[String] user input to change mapper name into
-# @option params[String] users select of name of which row to delete from mapper
+# @param[Integer] mapper_id, saves mapper id
+#
+# @see Model#delete_fom_beatmap_mapper_id
+# @see Model#delete_mapper
 post('/mappers/delete') do
     mapper_id = params[:mapper_id]
 
@@ -186,14 +196,16 @@ post('/mappers/delete') do
 end
 
 # Displays an input for new mappers
+#
 get('/genres/new') do
     slim(:"/genres/new")
 end 
 
-# Attempts to insert a new row in the genre table
+# Creates new genre, updates the session and redirects to '/genres/new'
 #
-# @params [Hash] params form data
-# @option params [String] genre name for the genre user
+# @param [String] genre_name, genre name used to put in column 'name' in table 'genre'
+#
+# @see Model#insert_into_genre
 post('/genres') do
     if session[:timer] != nil && Time.now - session[:timer] < 5
         return "Lägg inte till genres så snabbt >:|
@@ -207,8 +219,7 @@ end
 
 # Uses session information to confirm access to genres/edit
 #
-# @params [Hash] params form data
-# @option params[String] checks whether user has correct role
+# @param[String] role, checks whether user has correct role
 before ("/genres/edit") do
     if session[:role] != "Admin"
         redirect('/error')
@@ -216,16 +227,19 @@ before ("/genres/edit") do
 end
 
 # Displays an input and an option for changes in genres
+#
+# @see Model#select_all_from_genre
 get('/genres/edit') do
     @genres = select_all_from_genre()
     slim(:"/genres/edit")
 end
 
-# Attempts to change existing name in a row in genre table
+# Updates existing 'name' in a row in 'genre' table and redirect to '/genres/edit'
 #
-# @params [Hash] params form data
-# @option params[String] user input to change genre name into
-# @option params[String] users select of which genre name to change from
+# @param[String] user input to change genre name into
+# @param[String] users select of which genre name to change from
+#
+# @see Model#edit_name_of_genre
 post('/genres/update') do
     genre_edit_name_input = params[:genre_edit_name_input]
     genre_edit_name_select = params[:genre_edit_name_select]
@@ -236,8 +250,7 @@ end
 
 # Uses session information to confirm access to genres/delete
 #
-# @params [Hash] params form data
-# @option params[String] checks whether user has correct role
+# @param[String] role, checks whether user has correct role
 before ("/genres/delete") do
     if session[:role] != "Admin"
         redirect('/error')
@@ -245,15 +258,19 @@ before ("/genres/delete") do
 end
 
 # Displays a select option to delete row in genre table
+#
+# @ see Model#select_all_from_genre
 get('/genres/delete') do 
     @genres = select_all_from_genre()
     slim(:"/genres/delete")
 end
 
-# Attempts to delete an existing row in genre table
+# deletes an existing row in 'genre' table and redirect to '/genres/delete'
 #
-# @params [Hash] params form data
-# @option params[String] users select name of which row to delete from genre
+# @param[Integer] genre_id, saves genre id
+#
+# @see Model#delete_fom_beatmap_mapper_id
+# @see Model#delete_mapper
 post('/genres/delete') do
     genre_id = params[:genre_id]
 
@@ -264,8 +281,7 @@ end
 
 # Uses session information to confirm access to beatmaps/new
 #
-# @params [Hash] params form data
-# @option params[String] checks whether user has correct role
+# @param[String] role, checks whether user has correct role
 before ("/beatmaps/new") do
     if session[:role] != "Admin"
         redirect('/error')
@@ -273,20 +289,24 @@ before ("/beatmaps/new") do
 end
 
 # Displays multible input options for beatmap
+#
+# @see Model#select_all_from_genre
+# @see Model#select_all_from_mapper
 get('/beatmaps/new') do 
     @genres = select_all_from_genre()
     @mappers = select_all_from_mapper()
     slim(:"/beatmaps/new")
 end
 
-# Attempts to insert a new row in the beatmap table
+# Creates a new row in the beatmap table
 #
-# @params [Hash] params form data
-# @option params [String] title name for the title
-# @option params [String] description for the description
-# @option params [Integer] genre id for the genre_id
-# @option params [Integer] mapper id for the mapper_id
-# @option params [String] link to a the beatmap for the link
+# @param [String] title_name, title name for the title
+# @param [String] description_beatmap, description for the description
+# @param [Integer] genre_for_beatmap, genre id for the genre_id
+# @param [Integer] mapper_for_beatmap, mapper id for the mapper_id
+# @param [String] link_to_beatmap, link for the link
+#
+# @see Model#insert_into_beatmap
 post('/beatmaps') do
     title_name = params[:title_name]
     description_beatmap = params[:description_beatmap]
@@ -300,8 +320,7 @@ end
 
 # Uses session information to confirm access to beatmaps/delete
 #
-# @params [Hash] params form data
-# @option params[String] checks whether user has correct role
+# @param[String] role, checks whether user has correct role
 before ("/beatmaps/delete") do
     if session[:role] != "Admin"
         redirect('/error')
@@ -309,15 +328,18 @@ before ("/beatmaps/delete") do
 end
 
 # Displays a select option to delete row in beatmap table
+#
+# @see Model#select_all_from_beatmap
 get('/beatmaps/delete') do
     @beatmaps = select_all_from_beatmap()
     slim(:"/beatmaps/delete")
 end
 
-# Attempts to delete an existing row in beatmap table
+# Deletes an existing row in beatmap table
 #
-# @params [Hash] params form data
-# @option params[String] users select name of which row to delete from beatmap
+# @param[String] users select name of which row to delete from beatmap
+#
+# @see Model#delete_beatmap
 post('/beatmaps/delete') do
     beatmap_del_name = params[:beatmap_del_name]
     
@@ -325,20 +347,20 @@ post('/beatmaps/delete') do
     redirect('/beatmaps/delete')
 end
 
-# Displays an site with information from a certain beatmap
+# Displays a single beatmap
 #
-# @params [Hash] params form data
-# @option params [Integer] pick beatmap from id
+# @param [Integer] id, picks up beatmap from id
 #
-# @return[String] title from title in beatmap
-# @return[String] genre name from genre connected with id from beatmap
-# @return[String] mapper name from mapper connected with id from beatmap
-# @return[String] description from description in beatmap
-# @return[String] link for beatmap from link in beatmap
-# @return[String] comment text feom comment
+# @see Model#select_title_from_beatmap_where_id
+# @see Model#select_genreid_from_beatmap_where_id
+# @see Model#innerjoin_genrename_with_beatmap_genre_id
+# @see Model#select_mapperid_from_beatmap_where_id
+# @see Model#select_name_from_mapper_innerjoin_on_mapperid_where_mapperidfrombeatmap
+# @see Model#select_description_from_beatmap_where_id
+# @see Model#select_link_from_beatmap_where_id
+# @see Model#select_username_and_commenttext_from_comment_inner_join_on_userid_where_beatmapid
 get('/beatmaps/:id') do 
     id = params[:id]
-    db = open_data_base_with_hash()
     title = select_title_from_beatmap_where_id(id).first["title"]
     genre_id_from_beatmap = select_genreid_from_beatmap_where_id(id).first["genre_id"]
     genre = innerjoin_genrename_with_beatmap_genre_id(genre_id_from_beatmap).first["name"]
@@ -351,12 +373,13 @@ get('/beatmaps/:id') do
     slim(:"beatmaps/show", locals:{title:title, genre:genre, mapper:mapper, description:description, id:id, comment_on_beatmap:comment_on_beatmap, link_for_beatmap:link_for_beatmap})
 end
 
-# Attempts to insert a new row in the comment table
+# Creates a new row in the "comment" table
 #
-# @params [Hash] params form data
-# @option params [String] input description for comment text in comment
-# @option params [Integer] user id for user_id in comment
-# @option params [String] beatmap id for beatmap_id in comment
+# @param [String] input_description, input from user for column 'comment_text' in 'comment' table
+# @param [Integer] id, user id for column 'user_id' in table 'comment'
+# @param [String] id, beatmap id for column 'beatmap_id' in table 'comment'
+#
+# @see Model#insert_into_comment
 post('/beatmaps/:id') do
     input_description = params[:input_description]
     user_id = session[:id]
@@ -366,25 +389,32 @@ post('/beatmaps/:id') do
     redirect("/beatmaps/#{beatmap_id}")
 end
 
-post('/beatmaps/:beatmap_id/delete_comment/:id') do
-    if session[:id] == select_userid_from_comment(params[:id])
-        if session[:timer] != nil && Time.now - session[:timer] < 5
-            return "Spamma inte kommentarer >:|
-            <a href='/'> Gå tillbaka </a>"
-        end
-        beatmap_id = params[:beatmap_id]
-        comment_id = params[:id]
-        delete_comment(comment_id)
-        redirect("/beatmaps/#{beatmap_id}")
-    else
-        "Du kan inte radera denna kommentaren!
-        <a href='/'> Gå tillbaka </a>"
+# Checks whether user made the comment for deletion
+#
+# @param [Integer] id, user id from table 'comment'
+#
+# @see Model#select_userid_from_comment
+before ('/beatmaps/:beatmap_id/delete_comment/:id') do
+    if session[:id] != select_userid_from_comment(params[:id])
+        redirect('/error')
     end
 end
 
+# Deletes an existing row in the "comment" table and redirects to '/beatmaps/#{beatmap_id}'
+#
+# @param [Integer] beatmap_id, picks up beatmap id to later reirect back
+# @param [Integer] id, comment id for deletion
+#
+# @see Model#delete_comment
+post('/beatmaps/:beatmap_id/delete_comment/:id') do
+    beatmap_id = params[:beatmap_id]
+    comment_id = params[:id]
+    delete_comment(comment_id)
+    redirect('/beatmaps/#{beatmap_id}')
+end
+
 # Displays an error page containing message and link back
+#
 get('/error') do
     slim(:"/error")
 end
-
-  
