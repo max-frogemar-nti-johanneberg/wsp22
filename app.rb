@@ -11,7 +11,8 @@ include Model
 # Display Landing Page
 #
 get('/') do 
-    for_title_homepage = select_all_from_mapper()
+    session[:timer] = Time.now
+    for_title_homepage = select_all_from_beatmap()
     slim(:"index",locals:{homepage_title_song:for_title_homepage})
 end
 
