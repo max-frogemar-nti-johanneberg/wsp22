@@ -298,7 +298,7 @@ module Model
     # @param [Integer] params form data
     # @option params [Integer] comment_id, id to identify what row to select user_id from
     #
-    # @return [?] ??? 
+    # @return [Hash] Data from database
     def select_userid_from_comment(comment_id)
         db = open_data_base_with_hash()
         result = db.execute("SELECT user_id FROM comment WHERE id = ?", comment_id)

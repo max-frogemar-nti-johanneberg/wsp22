@@ -396,7 +396,9 @@ end
 #
 # @see Model#select_userid_from_comment
 before ('/beatmaps/:beatmap_id/delete_comment/:id') do
-    if session[:id] != select_userid_from_comment(params[:id])
+    comment_id = params[:id].to_i
+    owner_id = select_userid_from_comment(comment_id).first["user_id"]
+    if session[:id] != owner_id
         redirect('/error')
     end
 end
@@ -407,11 +409,11 @@ end
 # @param [Integer] id, comment id for deletion
 #
 # @see Model#delete_comment
-post('/beatmaps/:beatmap_id/delete_comment/:id') do
+post('/beatmaps/?:beatmap_id?/delete_comment/:id') do
     beatmap_id = params[:beatmap_id]
     comment_id = params[:id]
     delete_comment(comment_id)
-    redirect('/beatmaps/#{beatmap_id}')
+    redirect("/beatmaps/#{beatmap_id}")
 end
 
 # Displays an error page containing message and link back
